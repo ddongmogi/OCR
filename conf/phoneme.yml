@@ -1,0 +1,11 @@
+Basic:
+    phoneme_type: False
+    target_path:
+    
+Model:
+    hidden_size: 2048
+    output_size: 1024
+    input_size: 3
+    classes: 71
+    
+    use_tp: False

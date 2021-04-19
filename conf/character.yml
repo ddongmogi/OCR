@@ -1,0 +1,26 @@
+Basic:
+    phoneme_type: False
+    target_path: ../asset/dict/ko.json
+    back_path: ./asset/bg/gaussian_noise.png
+    font_path: ./asset/fonts/ko
+    word_path: ./asset/dict/ko_word.txt
+    
+    #only available when character mode triggered
+    char_path: ./asset/dict/ko.json
+    
+Model:
+    hidden_size: 2048
+    output_size: 1024
+    input_size: 3
+    
+    # 2002 for real character, 2 for '\t', '\n'
+    classes: 2004
+    
+    use_tp: False
+    
+Program:
+    batch_size: 5
+    epochs: 50000
+    learning_rate: 0.0003
+    
+    
