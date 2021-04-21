@@ -2,6 +2,10 @@ import PIL.Image as Image
 import numpy as np
 import torch
 import os
+import random
+from trdg.generators import GeneratorFromStrings
+
+from utils import AttnLabelConverter
 
 class DataLoader(object):
     def __init__(self,conf):
@@ -15,6 +19,8 @@ class DataLoader(object):
         self.word_bag = self.make_word_bag(conf['word_path'],self.tar2ind,conf['phoneme_type'])
         self.back_ground = self.make_back_ground(conf['back_path'])
         self.font_list = self.make_font_list(conf['font_path'])
+        
+        self.converter = AttnLabelConverter(self.tar2ind)
         
     def make_font_list(self,font_path):
         return [os.path.join(font_path,i) for i in os.listdir(font_path)]
@@ -64,10 +70,10 @@ class DataLoader(object):
                 text_row = []
                 x=0
                 size = np.random.randint(32,56)
-                font = [random.choice(font_list)]
+                font = [random.choice(self.font_list)]
                 while True:
                     generator = GeneratorFromStrings(
-                        [random.choice(word_bag).replace('\n','') for _ in range(count)],
+                        [random.choice(self.word_bag).replace('\n','')],
                         count=1, #row_max define number of words in a text line
                         blur=0,
                         size=size,
@@ -83,7 +89,7 @@ class DataLoader(object):
                         lbl = j
                     if not row:
                         #newpal = Image.new('RGB', (img.width,img.height))
-                        newrow = back.crop((0,0,img.width,img.height))
+                        newrow = self.back_ground.crop((0,0,img.width,img.height))
 
                         newrow.paste(img,(0,0))
                         row = newrow
@@ -92,7 +98,7 @@ class DataLoader(object):
                         text_row.append(lbl)
                     else:
                         if row_max-(x+img.width)>=0 and row_max-(x+img.width)<=size*2:
-                            newrow = back.crop((0,0,x+img.width,img.height))
+                            newrow = self.back_ground.crop((0,0,x+img.width,img.height))
 
                             newrow.paste(img,(x,0))
                             newrow.paste(row,(0,0))
@@ -104,7 +110,7 @@ class DataLoader(object):
                         elif row_max-(x+img.width)<=0:
                             continue
                         #newpal = Image.new('RGB', (x+img.width,img.height))
-                        newrow = back.crop((0,0,x+img.width,img.height))
+                        newrow = self.back_ground.crop((0,0,x+img.width,img.height))
 
                         newrow.paste(img,(x,0))
                         newrow.paste(row,(0,0))
@@ -116,7 +122,7 @@ class DataLoader(object):
 
                 #attach row image obj to palette image obj
                 if not palette:
-                    palette = back.crop((0,0,row.width + indent,row.height))
+                    palette = self.back_ground.crop((0,0,row.width + indent,row.height))
                     palette.paste(row,(0 + indent,0))
                     y += row.height
 
@@ -126,7 +132,7 @@ class DataLoader(object):
                         max_x = row.width
                     else:
                         max_x = palette.width
-                    newpal = back.crop((0,0,max_x,y+row.height))
+                    newpal = self.back_ground.crop((0,0,max_x,y+row.height))
                     newpal.paste(palette,(0,0))
                     newpal.paste(row,(0,y))
                     palette = newpal
@@ -147,7 +153,7 @@ class DataLoader(object):
         batch_width = max([i.width for i in img_batch])
         batch_height = max([i.height for i in img_batch])
         for i in range(batch_size):
-            batpal = back.crop((0,0,batch_width,batch_height))
+            batpal = self.back_ground.crop((0,0,batch_width,batch_height))
             batpal.paste(img_batch[i],(0,0))
             img_batch[i]=batpal
 
@@ -167,7 +173,7 @@ class DataLoader(object):
 
         #pad paragraph
         batch_max_length = max([len(i) for i in para_batch])
-        para_batch = converter.encode(para_batch,batch_max_length)
+        para_batch = self.converter.encode(para_batch,batch_max_length)
 
         return img_batch, para_batch
 

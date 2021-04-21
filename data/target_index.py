@@ -41,6 +41,5 @@ def character_index(path):
     for i,jm in enumerate(js):
         char2ind[jm]=i
         ind2char[i]=jm
-        
-        
+    
     return char2ind, ind2char

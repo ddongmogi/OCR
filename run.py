@@ -36,11 +36,10 @@ def main():
             conf = yaml.load(f,Loader=yaml.FullLoader)
     
     program = Program(conf['Program'])
-    
     dataloader = DataLoader(conf['Basic'])
-    
     model = Model(conf['Model'])
-            
+    
+    program.train(model, dataloader)
     
 
 if __name__ == "__main__":

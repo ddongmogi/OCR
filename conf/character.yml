@@ -13,8 +13,8 @@ Model:
     output_size: 1024
     input_size: 3
     
-    # 2002 for real character, 2 for '\t', '\n'
-    classes: 2004
+    # 2004 for real character, 4 for '\t', '\n' , '[s]' , '[GO]'
+    classes: 2008
     
     use_tp: False
     
@@ -22,5 +22,9 @@ Program:
     batch_size: 5
     epochs: 50000
     learning_rate: 0.0003
+    save_path: ./result/
     
+    # Data Setting
+    row_max: 750
+    col_count: 5
     
