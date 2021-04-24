@@ -19,9 +19,11 @@ class Program(object):
             
         self.save_path = conf['save_path']
         self.data_setting = {
-            'row_max':conf['row_max'],
-            'col_count':conf['col_count'],
+            'row_max':conf['row_max']
         }
+        if conf['paragraph_type']:
+            self.data_setting['col_count'] = conf['col_count']
+        self.paragraph_type = conf['paragraph_type']
         
     def train(self,model,dataloader):
         
@@ -45,9 +47,13 @@ class Program(object):
         with tqdm(range(self.epochs),unit="epoch") as tepoch:
             for epoch in tepoch:
                 tepoch.set_description(f"Epoch {epoch}")
-                batch_sampler = dataloader.batch_generator(self.batch_size,\
-                                                self.data_setting['row_max'],self.data_setting['col_count'])
                 
+                if self.paragraph_type:
+                    batch_sampler = dataloader.batch_generator(self.batch_size,\
+                                                self.data_setting['row_max'],self.data_setting['col_count'])
+                else:
+                    batch_sampler = dataloader.batch_generator(self.batch_size,\
+                                                self.data_setting['row_max'])
                 img = batch_sampler[0]
                 text = batch_sampler[1][0]
                 length = batch_sampler[1][1]

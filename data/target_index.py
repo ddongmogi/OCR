@@ -1,7 +1,7 @@
 from jamo import h2j, j2hcj
 from data.unicode import join_jamos
 
-def phoneme_index():
+def phoneme_index(paragraph_form=True):
     JAMO_LEADS = [chr(_) for _ in range(0x1100, 0x115F)]
     JAMO_LEADS_MODERN = [chr(_) for _ in range(0x1100, 0x1113)]
     JAMO_VOWELS = [chr(_) for _ in range(0x1161, 0x11A8)]
@@ -13,28 +13,32 @@ def phoneme_index():
 
     jamo2ind = {}
     ind2jamo = {}
+    
     for i,jm in enumerate(jamo_list):
         ind2jamo[i] = jm
         jamo2ind[jm] = i
-
-
-    jamo2ind['\n'] = 67
-    jamo2ind['\t']= 68
-    ind2jamo[67] = '\n'
-    ind2jamo[68] = '\t'
+        
+    jamo2ind['\t']= 67
+    ind2jamo[67] = '\t'
+    
+    if paragraph_form:
+        jamo2ind['\n'] = 68
+        ind2jamo[68] = '\n'
     
     return jamo2ind, ind2jamo
 
 
-def character_index(path):
+def character_index(path,paragraph_form=True):
     import json
 
     with open(path,'r') as f:
         js = json.load(f)[:-1]
 
-    js.append('\n')
     js.append('\t')
     
+    if paragraph_form:
+        js.append('\n')
+
     char2ind={}
     ind2char={}
 

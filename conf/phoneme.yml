@@ -1,11 +1,31 @@
 Basic:
-    phoneme_type: False
-    target_path:
+    phoneme_type: True
+    paragraph_type: False
+    back_path: ./asset/bg/gaussian_noise.png
+    font_path: ./asset/fonts/ko
+    word_path: ./asset/dict/ko_word.txt
+    
+    #only available when character mode triggered
+    char_path: ./asset/dict/ko.json
     
 Model:
-    hidden_size: 2048
-    output_size: 1024
+    paragraph_type: False
+    hidden_size: 1024
+    output_size: 512
     input_size: 3
+    
+    # 67 for real phoneme, 4 for '\t', '\n' , '[s]' , '[GO]'
     classes: 71
     
     use_tp: False
+    
+Program:
+    paragraph_type: False
+    batch_size: 5
+    epochs: 50000
+    learning_rate: 0.0003
+    save_path: ./result/phoneme
+    
+    # Data Setting
+    row_max: 750
+    col_count: 5

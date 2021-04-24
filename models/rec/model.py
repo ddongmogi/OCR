@@ -9,7 +9,10 @@ class Model(nn.Module):
         self.hidden_size = conf['hidden_size']
         self.output_size = conf['output_size']
         self.input_size = conf['input_size']
-        self.classes = conf['classes']
+        if conf['paragraph_type']:
+            self.classes = conf['classes']
+        else:
+            self.classes = conf['classes']-1 # exclude '\n' token
         
         self.use_tp = conf['use_tp']
         if self.use_tp:
