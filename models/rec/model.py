@@ -3,16 +3,13 @@ import torch.nn as nn
 from models.rec import modules as md
 
 class Model(nn.Module):
-    def __init__(self,conf):
+    def __init__(self,conf,num_target):
         super(Model,self).__init__()
-        
+        conf = conf['Model']
         self.hidden_size = conf['hidden_size']
         self.output_size = conf['output_size']
         self.input_size = conf['input_size']
-        if conf['paragraph_type']:
-            self.classes = conf['classes']
-        else:
-            self.classes = conf['classes']-1 # exclude '\n' token
+        self.classes = num_target
         
         self.use_tp = conf['use_tp']
         if self.use_tp:

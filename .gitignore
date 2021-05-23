@@ -129,6 +129,8 @@ dmypy.json
 .pyre/
 
 # custom restriction
-train.ipynb
+*.ipynb
 core
 /result
+/test_data
+
