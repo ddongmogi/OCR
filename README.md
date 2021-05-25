@@ -6,7 +6,7 @@
 
 ## Update
 
-- 05.25.21 : add ```ASTER``` for encode. ((here)[https://github.com/ayumiymk/aster.pytorch])
+- 05.25.21 : add ```ASTER``` for encode. ([https://github.com/ayumiymk/aster.pytorch])
 
 ## Train
 ``` 
