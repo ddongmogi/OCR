@@ -11,11 +11,12 @@ import json
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class Program(object):
-    def __init__(self, conf):
+    def __init__(self, conf, args):
         conf = conf['Program']
         self.lr = conf['learning_rate']
         self.epochs = conf['epochs']
         self.batch_size = conf['batch_size']
+        self.args = args
         
         if not os.path.exists(conf['save_path']):
             os.makedirs(conf['save_path'])
@@ -25,7 +26,7 @@ class Program(object):
         self.saved_model = conf['saved_model']
         
         
-    def train(self,model,dataloader, name, delete):
+    def train(self, model, dataloader, name, delete):
         if not os.path.exists(os.path.join(self.save_path, name)):
             os.makedirs(os.path.join(self.save_path, name))
         else:
@@ -53,15 +54,18 @@ class Program(object):
         best_loss = 100
             
         for epoch in range(self.epochs):
-            with tqdm(dataloader,unit="batch") as tepoch:
+            with tqdm(dataloader, unit="batch") as tepoch:
                 for batch, batch_sampler in enumerate(tepoch):
                     tepoch.set_description(f"Epoch {epoch+1} / Batch {batch+1}")
 
                     img = batch_sampler[0]
                     text = batch_sampler[1][0]
                     length = batch_sampler[1][1]
-
-                    preds  = model(img,text[:, :-1],max(length).cpu().numpy())
+                    
+                    if(self.args.choose_model=="ASTER"):
+                        preds  = model(img, text[:, :-1], max(length).cpu().numpy())
+                    else:
+                        preds  = model(img, text[:, :-1], max(length).cpu().numpy())
 
                     target = text[:, 1:]
                     cost = criterion(preds.contiguous().view(-1, preds.shape[-1]), target.contiguous().view(-1))
@@ -73,6 +77,7 @@ class Program(object):
                     optimizer.step()
 
                     loss_avg.add(cost)
+                    self.batch_size = len(text)
                     pred_max = torch.argmax(F.softmax(preds,dim=2).view(self.batch_size,-1,classes),2)
 
                     tepoch.set_postfix(loss=loss_avg.val().item(),pred=dataloader.dataset.converter.decode(pred_max,length))
