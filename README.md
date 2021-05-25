@@ -6,10 +6,11 @@
 
 ## Update
 
-- 05.24.21 : add ```ASTER``` for encode. ((here)[https://github.com/ayumiymk/aster.pytorch])
+- 05.25.21 : add ```ASTER``` for encode. ((here)[https://github.com/ayumiymk/aster.pytorch])
 
 ## Train
-```python run.py -pt [bool] \
+``` 
+python run.py -pt [bool] \
                  -m [mode] \
                  -n [name] \
                  -d [bool] \
