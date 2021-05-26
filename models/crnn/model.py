@@ -1,9 +1,8 @@
-
 import torch.nn as nn
-from models.rec import modules as md
+from models.crnn import modules as md
 
 class Model(nn.Module):
-    def __init__(self,conf,num_target):
+    def __init__(self, conf, num_target):
         super(Model,self).__init__()
         conf = conf['Model']
         self.hidden_size = conf['hidden_size']
@@ -19,13 +18,14 @@ class Model(nn.Module):
         self.ap = nn.AdaptiveAvgPool2d((None, 1))
 
         self.sm = nn.Sequential(
-        md.sequence_modeling.BidirectionalLSTM(self.output_size, self.hidden_size, self.hidden_size),
-        md.sequence_modeling.BidirectionalLSTM(self.hidden_size, self.hidden_size, self.hidden_size))
+            md.sequence_modeling.BidirectionalLSTM(self.output_size, self.hidden_size, self.hidden_size),
+            md.sequence_modeling.BidirectionalLSTM(self.hidden_size, self.hidden_size, self.hidden_size)
+        )
 
         self.pd = md.prediction.Attention(self.hidden_size, self.hidden_size, self.classes)
 
 
-    def forward(self,img,text,max_batch=25,is_train=True):
+    def forward(self, img, text, max_batch=25, is_train=True):
         if self.use_tp:
             img = self.tp(img)
             
@@ -33,6 +33,6 @@ class Model(nn.Module):
         x = self.ap(x.permute(0, 3, 1, 2))
         x = self.sm(x.squeeze(3))
         
-        x = self.pd(x.contiguous(),text,is_train,max_batch-1)
+        x = self.pd(x.contiguous(), text, is_train, max_batch-1)
         return x
         

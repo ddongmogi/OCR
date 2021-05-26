@@ -5,14 +5,12 @@ import sys
 import yaml
 
 from program import Program
-from models.rec.model import Model
 from data.data_loader import Load_Loader
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="text_recognition model training session."
     )
-    
     parser.add_argument(
         "-pt",
         "--phoneme_type",
@@ -20,15 +18,13 @@ def parse_arguments():
         help="Set target source as {True:phoneme / False:character}",
         default=False
     )
-    
     parser.add_argument(
         "-m",
         "--mode",
         type=str,
         help="Set mode to Train/Test",
-        default='Train'
+        default='Test'
     )
-    
     parser.add_argument(
         "-d",
         "--delete",
@@ -36,7 +32,6 @@ def parse_arguments():
         help="Delete current saving folder",
         default=False
     )
-    
     parser.add_argument(
         "-f",
         "--folder",
@@ -44,13 +39,19 @@ def parse_arguments():
         help="Folder path where target data stored (Only available when Test mode triggerd)",
         default='./test_data/'
     )
-    
     parser.add_argument(
         "-n",
         "--name",
         type=str,
         required=True,
         help="Name for save current training session (under ./result folder)"
+    )
+    parser.add_argument(
+        "-cm",
+        "--choose_model",
+        type=str,
+        required=True,
+        help="Select model to extract feature(default : CRNN)"
     )
     
     return parser.parse_args()
@@ -68,8 +69,15 @@ def main():
             conf = yaml.load(f,Loader=yaml.FullLoader)
             
     dataloader, num_target = Load_Loader(conf)
-    program = Program(conf)
-    model = Model(conf,num_target+2)
+    program = Program(conf, args)
+    if(args.choose_model=="CRNN"):
+        from models.crnn.model import Model
+        model = Model(conf, num_target+2)
+    elif(args.choose_model=="ASTER"):
+        from models.aster.model import Model
+        model = Model(conf, num_target+2, sDim=512, attDim=512, max_len_labels=25, STN_ON=True)
+    else:
+        raise("You write wrong model name!")
     
     if args.mode=='Train':
         program.train(model, dataloader, args.name,args.delete)
