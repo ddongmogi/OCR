@@ -63,7 +63,7 @@ class Program(object):
                     length = batch_sampler[1][1]
                     
                     if(self.args.choose_model=="ASTER"):
-                        preds  = model(img, text[:, :-1], max(length).cpu().numpy())
+                        preds  = model(img, text[:, :-1], length)
                     else:
                         preds  = model(img, text[:, :-1], max(length).cpu().numpy())
 
@@ -124,8 +124,3 @@ class Program(object):
                         break
                 print(pred_max)
                 print(dataloader.converter.decode(pred_max,length))
-        
-        
-        
-        
-        
