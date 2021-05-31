@@ -1,4 +1,4 @@
-from utils import Averager
+from utils import Averager, ScoreCalc
 from tqdm import tqdm
 import torch
 import numpy as np
@@ -42,6 +42,7 @@ class Program(object):
         
         criterion = torch.nn.CrossEntropyLoss(ignore_index=0).to(device)
         loss_avg = Averager()
+        calc = ScoreCalc()
         
         filtered_parameters = []
         params_num = []
@@ -50,9 +51,13 @@ class Program(object):
             params_num.append(np.prod(p.size()))
         print('Trainable params num : ', sum(params_num))
         
+        # optimizer & scheduler
         optimizer = optim.Adam(filtered_parameters, lr=self.lr, betas=(0.9, 0.999))
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, eta_min=1e-5, T_max=self.epochs)
+        
         best_loss = 100
-            
+        
+        
         for epoch in range(self.epochs):
             with tqdm(dataloader, unit="batch") as tepoch:
                 for batch, batch_sampler in enumerate(tepoch):
@@ -62,11 +67,21 @@ class Program(object):
                     text = batch_sampler[1][0]
                     length = batch_sampler[1][1]
                     
+                    try:
+                        if(self.args.choose_model=="ASTER"):
+                            preds  = model(img, text[:, :-1], max(length).cpu().numpy())
+                        else:
+                            preds  = model(img, text[:, :-1], max(length).cpu().numpy())
+                    except:
+                        print('catched')
+                        continue
+                    '''
+                    
                     if(self.args.choose_model=="ASTER"):
                         preds  = model(img, text[:, :-1], max(length).cpu().numpy())
                     else:
                         preds  = model(img, text[:, :-1], max(length).cpu().numpy())
-
+                    '''
                     target = text[:, 1:]
                     cost = criterion(preds.contiguous().view(-1, preds.shape[-1]), target.contiguous().view(-1))
 
@@ -74,21 +89,27 @@ class Program(object):
                     cost.backward()
 
                     torch.nn.utils.clip_grad_norm_(model.parameters(),5)  # gradient clipping with 5 (Default)
+                    
                     optimizer.step()
+                    scheduler.step()
 
                     loss_avg.add(cost)
                     self.batch_size = len(text)
                     pred_max = torch.argmax(F.softmax(preds,dim=2).view(self.batch_size,-1,classes),2)
 
-                    tepoch.set_postfix(loss=loss_avg.val().item(),pred=dataloader.dataset.converter.decode(pred_max,length))
+                    calc.add(target,F.softmax(preds,dim=2).view(self.batch_size,-1,classes),length)
+                    #print(dataloader.dataset.converter.decode(target,length),dataloader.dataset.converter.decode(pred_max,length))
+                        
+                    tepoch.set_postfix(loss=loss_avg.val().item(),acc=calc.val().item())
 
                     del batch_sampler,cost,pred_max,img,text,length
 
-                    if batch%50==0:
+                    if batch%(50*(20//self.batch_size))==0:
                         log = dict()
                         log['epoch'] = epoch+1
                         log['batch'] = batch+1
                         log['loss'] = loss_avg.val().item()
+                        log['acc'] = calc.val().item()
 
                         with open(os.path.join(save_folder,f'{name}.log'),'a') as f:
                             json.dump(log, f, indent=2)

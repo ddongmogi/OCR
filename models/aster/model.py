@@ -154,7 +154,8 @@ class Model(nn.Module):
 
     def forward(self, img, text, max_batch, is_train=True):
         x, rec_targets, rec_lengths = img, text, max_batch
-
+        
+        
         # rectification
         if self.STN_ON:
             # input images are downsampled before being fed into stn_head.
