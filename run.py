@@ -23,7 +23,7 @@ def parse_arguments():
         "--mode",
         type=str,
         help="Set mode to Train/Test",
-        default='Test'
+        default='Train'
     )
     parser.add_argument(
         "-d",
