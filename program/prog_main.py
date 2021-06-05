@@ -124,9 +124,9 @@ class Program(object):
 
                         try:
                             if(self.args.choose_model=="ASTER"):
-                                preds  = model(img, text[:, :-1], max(length).cpu().numpy())
+                                preds  = model(img, text[:, :-1], max(length).cpu().numpy(), is_train=False)
                             else:
-                                preds  = model(img, text[:, :-1], max(length).cpu().numpy())
+                                preds  = model(img, text[:, :-1], max(length).cpu().numpy(), is_train=False)
                         except:
                             print('catched')
                             continue
