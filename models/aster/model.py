@@ -78,7 +78,7 @@ class Model(nn.Module):
         else:
             rec_pred = self.pd(encoder_feats.contiguous(), text, is_train, max_batch-1)
             #rec_pred, rec_pred_scores = self.decoder.beam_search(encoder_feats, global_args.beam_width, self.eos)
-            rec_pred_ = self.decoder([encoder_feats, rec_targets, rec_lengths])
-            loss_rec = self.rec_crit(rec_pred_, rec_targets, rec_lengths)
+            #rec_pred_ = self.decoder([encoder_feats, rec_targets, rec_lengths])
+            #loss_rec = self.rec_crit(rec_pred_, rec_targets, rec_lengths)
 
         return rec_pred
