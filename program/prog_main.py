@@ -100,7 +100,7 @@ class Program(object):
 
                     del batch_sampler,t_cost,pred_max,img,text,length
 
-                    if batch%(5)==0:
+                    if batch==len(train_loader)-1:
                         log = dict()
                         log['epoch'] = epoch+1
                         log['batch'] = batch+1
